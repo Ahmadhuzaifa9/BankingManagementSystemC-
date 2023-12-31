@@ -116,6 +116,7 @@ class BankingSystem:
     def __init__(self):
         self.users = {}
         self.accounts = []
+        self.used_account_numbers = set() 
 
         # Load existing account data from CSV file
         self.load_accounts_from_csv()
@@ -131,6 +132,9 @@ class BankingSystem:
         return user and user.password == password
 
     def create_account(self, acc_number, initial_balance, acc_type, username, password):
+        if self.find_account_by_number(acc_number):
+            messagebox.showerror("Error", "Account with the given account number already exists.")
+            return
         new_user = self.users[username]
 
         if acc_type == "Savings":
@@ -233,8 +237,10 @@ class BankingSystem:
             print(f"Error loading accounts from CSV: {e}")
 
     def create_account(self, acc_number, initial_balance, acc_type, username, password):
+        if self.find_account_by_number(acc_number):
+            messagebox.showerror("Error", "Account with the given account number already exists.")
+            return
         new_user = self.users.get(username, User(username, password))
-
         if acc_type == "Savings":
             self.accounts.append(SavingsAccount(acc_number, initial_balance, new_user))
             messagebox.showinfo("Success", "Savings account created successfully.")
@@ -243,7 +249,7 @@ class BankingSystem:
             messagebox.showinfo("Success", "Current account created successfully.")
         else:
             messagebox.showerror("Error", "Invalid account type.")
-
+        self.used_account_numbers.add(acc_number)
         # Save updated accounts to CSV after creating a new account
         self.save_accounts_to_csv()
 
@@ -282,13 +288,15 @@ class BankingApp:
 
     def create_account(self):
         acc_number = simpledialog.askstring("Create Account", "Enter account number:")
-        initial_balance = float(simpledialog.askstring("Create Account", "Enter initial balance:"))
-        acc_type = simpledialog.askstring("Create Account", "Enter account type (Savings or Current):")
-        username = simpledialog.askstring("Create Account", "Enter your username:")
-        password = simpledialog.askstring("Create Account", "Create a password for your account:")
-
-        self.banking_system.create_user(username, password)
-        self.banking_system.create_account(acc_number, initial_balance, acc_type, username, password)
+        if acc_number:
+         initial_balance = float(simpledialog.askstring("Create Account", "Enter initial balance:"))
+         acc_type = simpledialog.askstring("Create Account", "Enter account type (Savings or Current):")
+         username = simpledialog.askstring("Create Account", "Enter your username:")
+         password = simpledialog.askstring("Create Account", "Create a password for your account:")
+         self.banking_system.create_user(username, password)
+         self.banking_system.create_account(acc_number, initial_balance, acc_type, username, password)
+        else:
+            messagebox.showerror("Error", "Account number cannot be empty.")
 
     def deposit_funds(self):
         acc_number = simpledialog.askstring("Deposit Funds", "Enter account number:")
