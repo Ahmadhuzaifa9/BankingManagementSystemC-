@@ -9,113 +9,137 @@
 
 using namespace std;
 
-class User {
+class User
+{
 public:
     string username;
     string password;
 
-    User(const string& uname, const string& pwd)
+    User(const string &uname, const string &pwd)
         : username(uname), password(pwd) {}
 
-    void setPassword(const string& oldPwd, const string& newPwd) {
-        if (oldPwd == password) {
+    void setPassword(const string &oldPwd, const string &newPwd)
+    {
+        if (oldPwd == password)
+        {
             password = newPwd;
             cout << "Password changed successfully." << endl;
-        } else {
+        }
+        else
+        {
             cout << "Incorrect old password. Password not changed." << endl;
         }
     }
 };
 
-class Transaction {
+class Transaction
+{
 public:
     string category;
     double amount;
     string timestamp;
 
-    Transaction(const string& cat, double amt, const string& time)
+    Transaction(const string &cat, double amt, const string &time)
         : category(cat), amount(amt), timestamp(time) {}
 };
 
-class Account {
+class Account
+{
 protected:
     string accountNumber;
     double balance;
     vector<Transaction> transactionHistory;
-    User* user;
+    User *user;
 
 public:
     virtual ~Account() = default;
 
-    Account(const string& accNumber, double initialBalance, User* accUser)
+    Account(const string &accNumber, double initialBalance, User *accUser)
         : accountNumber(accNumber), balance(initialBalance), user(accUser) {}
 
-    virtual void deposit(double amount) {
+    virtual void deposit(double amount)
+    {
         balance += amount;
         recordTransaction("Deposit", amount);
     }
 
-    virtual void withdraw(double amount) {
+    virtual void withdraw(double amount)
+    {
         string enteredPassword;
         cout << "Enter your password to withdraw: ";
         cin >> enteredPassword;
 
-        if (enteredPassword != user->password) {
+        if (enteredPassword != user->password)
+        {
             cout << "Incorrect password. Withdrawal canceled." << endl;
             return;
         }
 
-        if (balance >= amount) {
+        if (balance >= amount)
+        {
             balance -= amount;
             recordTransaction("Withdrawal", amount);
             cout << "Withdrawal successful. Remaining balance: $" << balance << endl;
-        } else {
+        }
+        else
+        {
             cout << "Insufficient balance." << endl;
         }
     }
 
-    virtual void display() const {
+    virtual void display() const
+    {
         cout << "Account Number: " << accountNumber << endl;
         cout << "Balance: $" << balance << endl;
     }
 
-    virtual string getAccountNumber() const {
+    virtual string getAccountNumber() const
+    {
         return accountNumber;
     }
 
-    virtual void showTransactionHistory() const {
+    virtual void showTransactionHistory() const
+    {
         cout << "Transaction History for Account: " << accountNumber << endl;
-        for (const auto& transaction : transactionHistory) {
+        for (const auto &transaction : transactionHistory)
+        {
             cout << transaction.timestamp << " - " << transaction.category << ": $" << transaction.amount << endl;
         }
     }
 
-    virtual void deleteAccount() {
+    virtual void deleteAccount()
+    {
         cout << "Account deleted successfully." << endl;
     }
 
-    virtual void transfer(Account* targetAccount, double amount) {
+    virtual void transfer(Account *targetAccount, double amount)
+    {
         string enteredPassword;
         cout << "Enter your password to transfer funds: ";
         cin >> enteredPassword;
 
-        if (enteredPassword != user->password) {
+        if (enteredPassword != user->password)
+        {
             cout << "Incorrect password. Transfer canceled." << endl;
             return;
         }
 
-        if (balance >= amount) {
+        if (balance >= amount)
+        {
             balance -= amount;
             targetAccount->deposit(amount);
             recordTransaction("Transfer (To: " + targetAccount->getAccountNumber() + ")", amount);
             cout << "Transfer successful. Remaining balance: $" << balance << endl;
-        } else {
+        }
+        else
+        {
             cout << "Insufficient balance for transfer." << endl;
         }
     }
 
 protected:
-    void recordTransaction(const string& type, double amount) {
+    void recordTransaction(const string &type, double amount)
+    {
         chrono::system_clock::time_point now = chrono::system_clock::now();
         time_t tt = chrono::system_clock::to_time_t(now);
 
@@ -128,70 +152,84 @@ protected:
     }
 };
 
-class SavingsAccount : public Account {
+class SavingsAccount : public Account
+{
 public:
-    SavingsAccount(const string& accNumber, double initialBalance, User* accUser)
+    SavingsAccount(const string &accNumber, double initialBalance, User *accUser)
         : Account(accNumber, initialBalance, accUser) {}
 
-    void applyInterest() {
+    void applyInterest()
+    {
         // No interest in SavingsAccount
     }
 };
 
-class CurrentAccount : public Account {
+class CurrentAccount : public Account
+{
 private:
     double overdraftLimit;
 
 public:
-    CurrentAccount(const string& accNumber, double initialBalance, double overdraft, User* accUser)
+    CurrentAccount(const string &accNumber, double initialBalance, double overdraft, User *accUser)
         : Account(accNumber, initialBalance, accUser), overdraftLimit(overdraft) {}
 
-    void withdraw(double amount) override {
+    void withdraw(double amount) override
+    {
         string enteredPassword;
         cout << "Enter your password to withdraw: ";
         cin >> enteredPassword;
 
-        if (enteredPassword != user->password) {
+        if (enteredPassword != user->password)
+        {
             cout << "Incorrect password. Withdrawal canceled." << endl;
             return;
         }
 
-        if (balance + overdraftLimit >= amount) {
+        if (balance + overdraftLimit >= amount)
+        {
             balance -= amount;
             recordTransaction("Withdrawal", amount);
             cout << "Withdrawal successful. Remaining balance: $" << balance << endl;
-        } else {
+        }
+        else
+        {
             recordTransaction("Transaction Declined - Overdraft Limit Exceeded", 0.0);
             cout << "Transaction declined. Overdraft limit exceeded." << endl;
         }
     }
 
-    void deleteAccount() override {
+    void deleteAccount() override
+    {
         // Additional cleanup or specific actions for CurrentAccount deletion
         cout << "Current account deleted successfully." << endl;
     }
 };
 
-class BankingSystem {
+class BankingSystem
+{
 private:
     unordered_map<string, User> users;
-    vector<Account*> accounts;
+    vector<Account *> accounts;
 
 public:
-    const vector<Account*>& getAccounts() const {
+    const vector<Account *> &getAccounts() const
+    {
         return accounts;
     }
 
-    void createUser(const string& username, const string& password) {
+    void createUser(const string &username, const string &password)
+    {
         users.emplace(username, User(username, password));
     }
 
-    bool authenticateUser(const string& username, const string& password) {
+    bool authenticateUser(const string &username, const string &password)
+    {
         auto it = users.find(username);
         return (it != users.end() && it->second.password == password);
     }
 
-    void displayMenu() {
+    void displayMenu()
+    {
         cout << "Menu:" << endl;
         cout << "1. Create Account" << endl;
         cout << "2. Deposit Funds" << endl;
@@ -204,47 +242,51 @@ public:
         cout << "9. Exit" << endl;
     }
 
-    void executeChoice(int choice) {
-        switch (choice) {
-            case 1:
-                createAccount();
-                break;
-            case 2:
-                depositFunds();
-                break;
-            case 3:
-                withdrawFunds();
-                break;
-            case 4:
-                displayAccountDetails();
-                break;
-            case 5:
-                showTransactionHistory();
-                break;
-            case 6:
-                changePassword();
-                break;
-            case 7:
-                deleteAccount();
-                break;
-            case 8:
-                transferFunds();
-                break;
-            case 9:
-                // Clean up memory
-                for (auto& acc : accounts) {
-                    delete acc;
-                }
-                accounts.clear();
-                cout << "Exiting the program." << endl;
-                break;
-            default:
-                cout << "Invalid choice. Try again." << endl;
+    void executeChoice(int choice)
+    {
+        switch (choice)
+        {
+        case 1:
+            createAccount();
+            break;
+        case 2:
+            depositFunds();
+            break;
+        case 3:
+            withdrawFunds();
+            break;
+        case 4:
+            displayAccountDetails();
+            break;
+        case 5:
+            showTransactionHistory();
+            break;
+        case 6:
+            changePassword();
+            break;
+        case 7:
+            deleteAccount();
+            break;
+        case 8:
+            transferFunds();
+            break;
+        case 9:
+            // Clean up memory
+            for (auto &acc : accounts)
+            {
+                delete acc;
+            }
+            accounts.clear();
+            cout << "Exiting the program." << endl;
+            break;
+        default:
+            cout << "Invalid choice. Try again." << endl;
         }
     }
 
 private:
-    void createAccount() {
+    void createAccount()
+    {
         string accNumber;
         double initialBalance;
         string accType;
@@ -255,6 +297,16 @@ private:
 
         cout << "Enter account number: ";
         getline(cin, accNumber);
+
+        // Check if an account with the same account number already exists
+        for (const auto &acc : accounts)
+        {
+            if (acc->getAccountNumber() == accNumber)
+            {
+                cout << "Account with this account number already exists." << endl;
+                return;
+            }
+        }
 
         cout << "Enter initial balance: ";
         cin >> initialBalance;
@@ -272,20 +324,26 @@ private:
 
         createUser(username, password);
 
-        User* newUser = &users.find(username)->second;
+        User *newUser = &users.find(username)->second;
 
-        if (accType == "Savings") {
+        if (accType == "Savings")
+        {
             accounts.push_back(new SavingsAccount(accNumber, initialBalance, newUser));
             cout << "Savings account created successfully." << endl;
-        } else if (accType == "Current") {
+        }
+        else if (accType == "Current")
+        {
             accounts.push_back(new CurrentAccount(accNumber, initialBalance, 100.0, newUser));
             cout << "Current account created successfully." << endl;
-        } else {
+        }
+        else
+        {
             cout << "Invalid account type." << endl;
         }
     }
 
-    void depositFunds() {
+    void depositFunds()
+    {
         string accNumber;
         double depositAmount;
 
@@ -296,15 +354,19 @@ private:
         cout << "Enter deposit amount: ";
         cin >> depositAmount;
 
-        Account* account = findAccountByNumber(accNumber);
-        if (account) {
+        Account *account = findAccountByNumber(accNumber);
+        if (account)
+        {
             account->deposit(depositAmount);
-        } else {
+        }
+        else
+        {
             cout << "Account not found." << endl;
         }
     }
 
-    void withdrawFunds() {
+    void withdrawFunds()
+    {
         string accNumber;
         double withdrawAmount;
 
@@ -312,45 +374,57 @@ private:
         cin.ignore(); // Ignore newline character
         getline(cin, accNumber);
 
-        Account* account = findAccountByNumber(accNumber);
-        if (account) {
+        Account *account = findAccountByNumber(accNumber);
+        if (account)
+        {
             cout << "Enter withdrawal amount: ";
             cin >> withdrawAmount;
             account->withdraw(withdrawAmount);
-        } else {
+        }
+        else
+        {
             cout << "Account not found." << endl;
         }
     }
 
-    void displayAccountDetails() {
+    void displayAccountDetails()
+    {
         string accNumber;
         cout << "Enter account number: ";
         cin.ignore(); // Ignore newline character
         getline(cin, accNumber);
 
-        Account* account = findAccountByNumber(accNumber);
-        if (account) {
+        Account *account = findAccountByNumber(accNumber);
+        if (account)
+        {
             account->display();
-        } else {
+        }
+        else
+        {
             cout << "Account not found." << endl;
         }
     }
 
-    void showTransactionHistory() {
+    void showTransactionHistory()
+    {
         string accNumber;
         cout << "Enter account number: ";
         cin.ignore(); // Ignore newline character
         getline(cin, accNumber);
 
-        Account* account = findAccountByNumber(accNumber);
-        if (account) {
+        Account *account = findAccountByNumber(accNumber);
+        if (account)
+        {
             account->showTransactionHistory();
-        } else {
+        }
+        else
+        {
             cout << "Account not found." << endl;
         }
     }
 
-    void changePassword() {
+    void changePassword()
+    {
         string username;
         string oldPassword;
         string newPassword;
@@ -359,23 +433,29 @@ private:
         cin >> username;
 
         auto it = users.find(username);
-        if (it != users.end()) {
+        if (it != users.end())
+        {
             cout << "Enter your old password: ";
             cin >> oldPassword;
             it->second.setPassword(oldPassword, newPassword);
-        } else {
+        }
+        else
+        {
             cout << "User not found." << endl;
         }
     }
 
-    void deleteAccount() {
+    void deleteAccount()
+    {
         string accNumber;
         cout << "Enter account number to delete: ";
         cin.ignore(); // Ignore newline character
         getline(cin, accNumber);
 
-        for (auto it = accounts.begin(); it != accounts.end(); ++it) {
-            if ((*it)->getAccountNumber() == accNumber) {
+        for (auto it = accounts.begin(); it != accounts.end(); ++it)
+        {
+            if ((*it)->getAccountNumber() == accNumber)
+            {
                 (*it)->deleteAccount();
                 delete *it;
                 accounts.erase(it);
@@ -387,7 +467,8 @@ private:
         cout << "Account not found." << endl;
     }
 
-    void transferFunds() {
+    void transferFunds()
+    {
         string sourceAccNumber;
         string targetAccNumber;
         double amount;
@@ -402,19 +483,25 @@ private:
         cout << "Enter transfer amount: ";
         cin >> amount;
 
-        Account* sourceAccount = findAccountByNumber(sourceAccNumber);
-        Account* targetAccount = findAccountByNumber(targetAccNumber);
+        Account *sourceAccount = findAccountByNumber(sourceAccNumber);
+        Account *targetAccount = findAccountByNumber(targetAccNumber);
 
-        if (sourceAccount && targetAccount) {
+        if (sourceAccount && targetAccount)
+        {
             sourceAccount->transfer(targetAccount, amount);
-        } else {
+        }
+        else
+        {
             cout << "One or both accounts not found." << endl;
         }
     }
 
-    Account* findAccountByNumber(const string& accNumber) {
-        for (auto& acc : accounts) {
-            if (acc->getAccountNumber() == accNumber) {
+    Account *findAccountByNumber(const string &accNumber)
+    {
+        for (auto &acc : accounts)
+        {
+            if (acc->getAccountNumber() == accNumber)
+            {
                 return acc;
             }
         }
@@ -422,25 +509,29 @@ private:
     }
 };
 
-int main() {
-    cout<<"\n\n\t\t\t\t======================\n";
-	cout<<"\t\t\t\tBANK MANAGEMENT SYSTEM";
-	cout<<"\n\t\t\t\t======================\n";
+int main()
+{
+    cout << "\n\n\t\t\t\t======================\n";
+    cout << "\t\t\t\tBANK MANAGEMENT SYSTEM";
+    cout << "\n\t\t\t\t======================\n";
 
-		cout<<"\t\t\t\t    ::MAIN MENU::\n";
+    cout << "\t\t\t\t    ::MAIN MENU::\n";
     BankingSystem bankingSystem;
 
-    while (true) {
+    while (true)
+    {
         bankingSystem.displayMenu();
 
         int choice;
-        cout<<"\n\n\t\t\t\tSelect Your Option (1-9): ";
+        cout << "\n\n\t\t\t\tSelect Your Option (1-9): ";
         cin >> choice;
 
-        if (choice == 9) {
+        if (choice == 9)
+        {
             // Clean up memory using a pointer to the base class
-            for (auto& acc : bankingSystem.getAccounts()) {
-                Account* baseAccount = acc;
+            for (auto &acc : bankingSystem.getAccounts())
+            {
+                Account *baseAccount = acc;
                 delete baseAccount;
             }
             break; // Exit the loop and end the program
@@ -450,4 +541,4 @@ int main() {
     }
 
     return 0;
-    }
+}
